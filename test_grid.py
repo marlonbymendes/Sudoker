@@ -8,6 +8,13 @@ def setup_grid():
     grid = Grid(rows, columns, cells)
     return deepcopy(grid)
 
+class Table:
+    def __init__(self):
+        self.table = [[1, 2, 1, 3], [3, 2, 1, 4], [1, 1, 1, 5]]
+        self.rows = 3
+        self.columns = 4
+        self.cells = [1, 2, 3, 4, 5]
+
 def test_get_row():
     grid = setup_grid()
 
@@ -50,3 +57,26 @@ def test_grid_str():
     grid = setup_grid()
     expected = '1 1 1 1 1 \n' * 5
     assert str(grid) == expected
+
+def test_constructor_from_table_rows():
+    table = Table()
+    grid = Grid(table=table.table)
+    assert table.rows == grid.rows
+
+def test_constructor_from_table_columns():
+    table = Table()
+    grid = Grid(table=table.table)
+    assert table.columns == grid.columns
+
+def test_constructor_from_nom_rectangular_table():
+    table = [[1, 2, 3, 4], [1, 2, 3], [1, 2, 3, 4]]
+    try:
+        grid = Grid(table=table)
+    except ValueError:
+        pass
+
+def test_cells_from_talbe_constructor():
+    table = Table()
+    grid = Grid(table=table.table)
+    expected = table.cells
+    assert grid.cells == expected

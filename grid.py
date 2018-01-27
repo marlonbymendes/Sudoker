@@ -1,10 +1,30 @@
+
 class Grid():
 
-    def __init__(self, rows, columns, cells):
-        self._cells = cells
+    def __init__(self, rows=None, columns=None, cells=None, table=None):
+
+        if table is None:
+            'Initialize grid from given rows, columns, cells'
+            self._grid = [[cells[0] for i in range(columns)] for i in range(rows)]
+        else:
+            'Initialize grid from a table'
+            cells_set = set()
+            rows = len(table)
+            columns = len(table[0])
+            columns_size = set()
+            for row in table:
+                columns_size.add(len(row))
+                for value in row:
+                    cells_set.add(value)
+            if len(columns_size) is not 1:
+                raise ValueError('Given table does not have a matrix form (rectangular)')
+
+            cells = list(cells_set)
+            self._grid = table
+
         self._rows = rows
         self._columns = columns
-        self._grid = [[cells[0] for i in range(columns)] for i in range(rows)]
+        self._cells = cells
 
     @property
     def cells(self):
