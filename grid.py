@@ -44,6 +44,9 @@ class Grid():
         else:
             raise ValueError('Value is not a valid cell.')
 
+    def get_cell(self, row, column):
+        return self._grid[row][column]
+
     def __str__(self):
         output = ''
         for row in self.grid:
