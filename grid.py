@@ -1,51 +1,52 @@
 class Grid():
 
     def __init__(self, rows, columns, cells):
-        self.rows = rows
-        self.columns = columns
-        self.cells = cells
-        self.grid = [[cells[0] for i in range(columns)] for i in range(rows)]
+        self._cells = cells
+        self._rows = rows
+        self._columns = columns
+        self._grid = [[cells[0] for i in range(columns)] for i in range(rows)]
 
-    def get_cells(self):
-        return self.cells
+    @property
+    def cells(self):
+        return self._cells
 
-    def get_grid(self):
-        return self.grid
+    @property
+    def grid(self):
+        return self._grid
 
-    def get_row_number(self):
-        return self.rows
+    @property
+    def rows(self):
+        return self._rows
 
-    def get_column_number(self):
-        return self.columns
+    @property
+    def columns(self):
+        return self._columns
 
     def get_row(self, index):
-        return self.get_grid()[index]
+        return self.grid[index]
 
     def get_column(self, index):
         col = []
-        grid = self.get_grid()
-        for row in grid:
+        for row in self.grid:
             col.append(row[index])
         return col
 
     def inside_grid(self, row, column):
-        return (row >= 0 and row < self.get_row_number()) and \
-                (column >= 0 and column < self.get_column_number())
+        return (row >= 0 and row < self.rows) and \
+                (column >= 0 and column < self.columns)
 
     def set_cell(self, row, column, value):
-        if value in self.get_cells():
+        if value in self.cells:
             if self.inside_grid(row, column):
-                grid = self.get_grid()
-                grid[row][column] = value
+                self._grid[row][column] = value
             else:
                 raise IndexError('Row or column not inside grid bounds.')
         else:
             raise ValueError('Value is not a valid cell.')
 
     def __str__(self):
-        grid = self.get_grid()
         output = ''
-        for row in grid:
+        for row in self.grid:
             for cell in row:
                 output += (str(cell) + ' ')
             output += '\n'
