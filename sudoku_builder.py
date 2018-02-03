@@ -1,5 +1,9 @@
 from sudoku import Sudoku
 from random import randint
+import logging
+import sys
+
+logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
 
 class SudokuBuilder:
 
@@ -7,7 +11,7 @@ class SudokuBuilder:
         self._sudoku = Sudoku()
         self._free_i = 0
         self._free_j = 0
-        self._MAX_TRIES = 25
+        self._free_cells_stack = []
 
     @property
     def grid(self):
@@ -16,6 +20,7 @@ class SudokuBuilder:
     def __update_free_cell(self):
         i = self._free_i
         j = self._free_j
+        #self._free_cells_stack.append((i, j))
 
         if i >= self._sudoku.dimension:
             raise ValueError
@@ -28,26 +33,33 @@ class SudokuBuilder:
         self._free_i = i
         self._free_j = j
 
-    def __set_free_cell(self, value):
-        self._sudoku.set_cell(self._free_i, self._free_j, value)
-        self.__update_free_cell()
+    def __degrade_free_cell(self):
+        i = self._free_i
+        j = self._free_j
+        self._sudoku.set_cell(i, j, 0)
+
+        top_free_cell = self._free_cells_stack.pop()
+        self._free_i = top_free_cell[0]
+        self._free_j = top_free_cell[1]
 
     def __fill_free_cell(self):
         i = self._free_i
         j = self._free_j
-        if not self._sudoku.inside_grid(i, j):
+        logging.info('filling ({}, {})..'.format(i, j))
+        sudoku = self._sudoku
+
+        if not sudoku.inside_grid(i, j):
             raise IndexError
 
-        tries = 0
-        while True:
-            value = randint(1, self._sudoku.dimension)
-            tries += 1
-            self._sudoku.set_cell(i, j, value)
-            if self._sudoku.unique_in_cross(i, j):
-                self.__set_free_cell(value)
-                break
-            if tries == self._MAX_TRIES:
-                raise ValueError('Maximum number of tries reachead')
+        checked = set()
+        while len(checked) < sudoku.dimension:
+            value = randint(1, sudoku.dimension)
+            checked.add(value)
+            sudoku.set_cell(i, j, value)
+            if sudoku.unique_in_cross(i, j):
+                self.__update_free_cell()
+                return
+        raise ValueError('Can\'t set a valid cell in this position.')
 
     def __fill_all_free_cells(self):
         while True:
@@ -56,6 +68,7 @@ class SudokuBuilder:
             except IndexError:
                 break
             except ValueError:
+                logging.info('Reseting builder')
                 self.__reset()
 
     def __reset_free_cells(self):
@@ -69,5 +82,4 @@ class SudokuBuilder:
     def generate_sudoku(self):
         self.__reset()
         self.__fill_all_free_cells()
-        assert self._sudoku.is_solved()
         return self._sudoku
