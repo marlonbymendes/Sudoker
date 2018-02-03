@@ -74,3 +74,8 @@ class Grid():
                 output += (str(cell) + ' ')
             output += '\n'
         return output
+
+    def clear(self):
+        for i in range(self.rows):
+            for j in range(self.columns):
+                self.set_cell(i, j, self.cells[0])

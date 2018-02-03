@@ -89,3 +89,13 @@ def test_solved_sudoku():
 def test_unsolved_sudoku():
     s = Sudoku(sConstants.unsolved_sudoku2)
     assert not s.is_solved()
+
+def test_unique_in_cross():
+    s = Sudoku(sConstants.solved_sudoku)
+    for i in range(sConstants.dimension):
+        for j in range(sConstants.dimension):
+            assert s.unique_in_cross(i, j)
+
+def test_not_unique_in_cross():
+    s = Sudoku(sConstants.unsolved_sudoku2)
+    assert not s.unique_in_cross(6, 0)

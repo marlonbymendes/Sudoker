@@ -80,3 +80,11 @@ def test_cells_from_talbe_constructor():
     grid = Grid(table=table.table)
     expected = table.cells
     assert grid.cells == expected
+
+def test_clear():
+    table = Table()
+    grid = Grid(table=table.table)
+    grid.clear()
+    for i in range(grid.rows):
+        for j in range(grid.columns):
+            assert grid.get_cell(i, j) == table.cells[0]
