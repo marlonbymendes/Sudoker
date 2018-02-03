@@ -1,9 +1,5 @@
 from sudoku import Sudoku
 from random import randint
-import logging
-import sys
-
-logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
 
 class SudokuBuilder:
 
@@ -11,7 +7,6 @@ class SudokuBuilder:
         self._sudoku = Sudoku()
         self._free_i = 0
         self._free_j = 0
-        self._free_cells_stack = []
 
     @property
     def grid(self):
@@ -20,7 +15,6 @@ class SudokuBuilder:
     def __update_free_cell(self):
         i = self._free_i
         j = self._free_j
-        #self._free_cells_stack.append((i, j))
 
         if i >= self._sudoku.dimension:
             raise ValueError
@@ -45,7 +39,6 @@ class SudokuBuilder:
     def __fill_free_cell(self):
         i = self._free_i
         j = self._free_j
-        logging.info('filling ({}, {})..'.format(i, j))
         sudoku = self._sudoku
 
         if not sudoku.inside_grid(i, j):
@@ -68,7 +61,6 @@ class SudokuBuilder:
             except IndexError:
                 break
             except ValueError:
-                logging.info('Reseting builder')
                 self.__reset()
 
     def __reset_free_cells(self):
