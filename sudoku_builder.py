@@ -13,40 +13,28 @@ class SudokuBuilder:
         return self._sudoku.grid
 
     def __update_free_cell(self):
-        i = self._free_i
-        j = self._free_j
+        dimension = self._sudoku.dimension
+        j_start = self._free_j
+        for i in range(self._free_i, dimension):
+            for j in range(j_start, dimension):
+                if self._sudoku.get_cell(i, j) == 0:
+                    self._free_i = i
+                    self._free_j = j
+                    return
+            j_start = 0
+        raise IndexError('There are no more free cells.')
 
-        if i >= self._sudoku.dimension:
-            raise ValueError
-
-        j += 1
-        if j == self._sudoku.dimension:
-            j = 0
-            i += 1
-
-        self._free_i = i
-        self._free_j = j
-
-    def __degrade_free_cell(self):
-        i = self._free_i
-        j = self._free_j
-        self._sudoku.set_cell(i, j, 0)
-
-        top_free_cell = self._free_cells_stack.pop()
-        self._free_i = top_free_cell[0]
-        self._free_j = top_free_cell[1]
+    def generate_random_cell(self):
+        return randint(1, self._sudoku.dimension)
 
     def __fill_free_cell(self):
         i = self._free_i
         j = self._free_j
         sudoku = self._sudoku
 
-        if not sudoku.inside_grid(i, j):
-            raise IndexError
-
         checked = set()
         while len(checked) < sudoku.dimension:
-            value = randint(1, sudoku.dimension)
+            value = self.generate_random_cell()
             checked.add(value)
             sudoku.set_cell(i, j, value)
             if sudoku.unique_in_cross(i, j):
