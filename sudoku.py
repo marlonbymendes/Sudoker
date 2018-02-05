@@ -70,6 +70,7 @@ class Sudoku(Grid):
         line_count = self.get_row(row).count(element)
         return line_count == 1
 
+    # Valid positions: (0, 0), (0, 1), (0, 2), (1, 0), ... (2, 2)
     def get_quadrant_as_list(self, row, column):
         i_start = row * 3
         j_start = column * 3
@@ -79,3 +80,21 @@ class Sudoku(Grid):
             for j in range(j_start, j_start + 3):
                 quadrant.append(self.get_cell(i, j))
         return quadrant
+
+    def get_candidates(self, i, j):
+        cell = self.get_cell(i, j)
+        candidates = set()
+        if cell == 0:
+            quadrant_pos = self.get_cell_quadrant(i, j)
+            row, column, quadrant = (self.get_row(i),
+                                     self.get_column(j),
+                                     self.get_quadrant_as_list(quadrant_pos[0], quadrant_pos[1]))
+            lines = [row, column, quadrant]
+            used = set()
+            for line in lines:
+                for cell in line:
+                    used.add(cell)
+            candidates = self._solved_valid_cells - used
+        else:
+            candidates.add(cell)
+        return candidates

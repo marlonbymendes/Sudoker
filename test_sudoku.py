@@ -34,6 +34,17 @@ class SudokuConstants:
                         [2, 8, 7, 4, 1, 9, 6, 3, 5],
                         [3, 4, 5, 2, 8, 6, 1, 7, 9]]
 
+    partially_solved = [[0, 0, 0, 0, 5, 6, 0, 0, 2],
+		        [6, 0, 9, 7, 0, 2, 0, 0, 0],
+		        [0, 2, 7, 0, 0, 0, 0, 9, 0],
+		        [0, 6, 0, 0, 0, 9, 0, 0, 8],
+		        [5, 0, 0, 0, 0, 0, 3, 0, 4],
+		        [0, 1, 0, 0, 0, 7, 0, 0, 9],
+		        [0, 8, 6, 0, 0, 0, 0, 3, 0],
+		        [9, 0, 3, 2, 0, 1, 0, 0, 0],
+		        [0, 0, 0, 0, 9, 3, 0, 0, 6]]
+
+
 
 
 sConstants = SudokuConstants()
@@ -99,3 +110,26 @@ def test_unique_in_cross():
 def test_not_unique_in_cross():
     s = Sudoku(sConstants.unsolved_sudoku2)
     assert not s.unique_in_cross(6, 0)
+
+def test_candidates_from_filled_cell():
+    s = Sudoku(sConstants.partially_solved)
+    i, j = (1, 0)
+    cell = s.get_cell(i, j)
+
+    assert cell != 0
+    candidates = s.get_candidates(i, j)
+    assert candidates == {cell}
+
+def test_unique_candidates_from_not_filled_cell():
+    s = Sudoku(sConstants.partially_solved)
+    i, j = (4, 5)
+    candidates = s.get_candidates(i, j)
+
+    assert candidates == {8}
+
+def test_unique_candidates_from_not_filled_cell():
+    s = Sudoku(sConstants.partially_solved)
+    i, j = (7, 1)
+    candidates = s.get_candidates(i, j)
+
+    assert candidates == {4, 5, 7}
