@@ -47,6 +47,57 @@ class SudokuSolver():
                     return solution
         return None
 
+    def _init_and_run_recursive_solution(self):
+        self._init_cell_order()
+        self._solve_recursive(0)
+
+    def find_row_solution(self, row):
+        sudoku = self._sudoku
+        found = 0
+        for i in range(1, sudoku.dimension + 1):
+            candidates = self.find_value_candidates_in_row(row, i)
+            if len(candidates) == 1:
+                found += 1
+                column = candidates[0]
+                sudoku.set_cell(row, column, i)
+
+        if found == 0:
+            raise CellSolutionNotFound('There are no soluions for that row')
+        else:
+            return found
+
+    def find_column_solution(self, column):
+        sudoku = self._sudoku
+        found = 0
+        for i in range(1, sudoku.dimension + 1):
+            candidates = self.find_value_candidates_in_column(column, i)
+            if len(candidates) == 1:
+                found += 1
+                row = candidates[0]
+                sudoku.set_cell(row, column, i)
+
+        if found == 0:
+            raise CellSolutionNotFound('There are no soluions for that column')
+        else:
+            return found
+
+    def find_quadrant_solution(self, quadrant):
+        sudoku = self._sudoku
+        found = 0
+
+        for i in range(1, sudoku.dimension + 1):
+            candidates = self.find_value_candidates_in_quadrant(quadrant, i)
+
+            if len(candidates) == 1:
+                found += 1
+                row, column = candidates[0]
+                sudoku.set_cell(row, column, i)
+
+        if found == 0:
+            raise CellSolutionNotFound('There are no soluions for that quadrant')
+        else:
+            return found
+
     def find_and_set_solution(self):
         solution = self.find_cell_solution()
         if solution is not None:
@@ -54,22 +105,40 @@ class SudokuSolver():
             self._sudoku.set_cell(i, j, value)
         else:
             raise CellSolutionNotFound('There is no solution for any cell')
+    
+    def _try_greedy_solution(self):
+        try:
+            self.find_and_set_solution()
+        except CellSolutionNotFound:
+            pass
 
-    def _init_and_run_recursive_solution(self):
-        self._init_cell_order()
-        self._solve_recursive(0)
+        found = 0
+        dimension = self._sudoku.dimension
+
+        quadrants = []
+        for i in range(3):
+            for j in range(3):
+                quadrant = (i, j)
+                quadrants.append(quadrant)
+        for quadrant in quadrants:
+            found += self.find_quadrant_solution(quadrant)
+
+        for i in range(dimension):
+            found += self.find_row_solution(i, value)
+
+        if found == 0:
+            raise CellSolutionNotFound('Found no solutions by candidates for rows, columns and quadrants')
 
     def solve_sudoku(self):
         while True:
             try:
+                #self._try_greedy_solution()
                 self.find_and_set_solution()
             except CellSolutionNotFound:
                 if not self._sudoku.is_solved():
                     print('Starting recursive solution')
                     self._init_and_run_recursive_solution()
                 break
-
-        assert self._sudoku.is_solved()
         return self._sudoku
 
     # Find column positions for a given row that are possible solutions for the given value
@@ -79,7 +148,6 @@ class SudokuSolver():
         value_row = sudoku.get_row(row)
         try:
             value_at = value_row.index(value)
-            candidates.append(value_at)
         except ValueError:
             for j in range(sudoku.dimension):
                 if sudoku.get_cell(row, j) != 0:
@@ -97,7 +165,6 @@ class SudokuSolver():
         value_column = sudoku.get_column(column)
         try:
             value_at = value_column.index(value)
-            candidates.append(value_at)
         except ValueError:
             for i in range(sudoku.dimension):
                 if sudoku.get_cell(i, column) != 0:
@@ -127,13 +194,14 @@ class SudokuSolver():
             columns.append(sudoku.get_column(j))
 
         for i in range(3):
+            real_i = i_start + i
             for j in range(3):
-                real_i, real_j = i_start + i, j_start + j
+                real_j = j_start + j
 
                 if sudoku.get_cell(real_i, real_j) == 0 and \
                    value not in rows[i] and \
                    value not in columns[j]:
-                       candidates.append((i_start + i, j_start + j))
+                       candidates.append((real_i, real_j))
         return candidates
 
 class CellSolutionNotFound(Exception):
