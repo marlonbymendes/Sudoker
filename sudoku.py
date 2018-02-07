@@ -61,16 +61,16 @@ class Sudoku(Grid):
             unique = unique and function(i, j)
         return unique
 
-    def get_cell_quadrant(self, i, j):
-        quadrant = (i // 3, j // 3)
-        return quadrant
-
     def unique_in_row(self, row, column):
         element = self.get_cell(row, column)
         line_count = self.get_row(row).count(element)
         return line_count == 1
 
-    # Valid positions: (0, 0), (0, 1), (0, 2), (1, 0), ... (2, 2)
+    def get_cell_quadrant(self, i, j):
+        quadrant = (i // 3, j // 3)
+        return quadrant
+
+        # Valid positions: (0, 0), (0, 1), (0, 2), (1, 0), ... (2, 2)
     def get_quadrant_as_list(self, row, column):
         i_start = row * 3
         j_start = column * 3
@@ -80,6 +80,10 @@ class Sudoku(Grid):
             for j in range(j_start, j_start + 3):
                 quadrant.append(self.get_cell(i, j))
         return quadrant
+
+    def get_quadrant_from_cell(self, i, j):
+        quadrant_pos = self.get_cell_quadrant(i, j)
+        return self.get_quadrant_as_list(quadrant_pos[0], quadrant_pos[1])
 
     def get_candidates(self, i, j):
         cell = self.get_cell(i, j)

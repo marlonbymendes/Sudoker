@@ -72,6 +72,70 @@ class SudokuSolver():
         assert self._sudoku.is_solved()
         return self._sudoku
 
+    # Find column positions for a given row that are possible solutions for the given value
+    def find_value_candidates_in_row(self, row, value):
+        sudoku = self._sudoku
+        candidates = []
+        value_row = sudoku.get_row(row)
+        try:
+            value_at = value_row.index(value)
+            candidates.append(value_at)
+        except ValueError:
+            for j in range(sudoku.dimension):
+                if sudoku.get_cell(row, j) != 0:
+                    continue
+
+                if value not in sudoku.get_column(j):
+                    if value not in sudoku.get_quadrant_from_cell(row, j):
+                        candidates.append(j)
+        return candidates
+
+    # Find row positions for a given column that are possible solutions for the given value
+    def find_value_candidates_in_column(self, column, value):
+        sudoku = self._sudoku
+        candidates = []
+        value_column = sudoku.get_column(column)
+        try:
+            value_at = value_column.index(value)
+            candidates.append(value_at)
+        except ValueError:
+            for i in range(sudoku.dimension):
+                if sudoku.get_cell(i, column) != 0:
+                    continue
+
+                if value not in sudoku.get_row(i):
+                    if value not in sudoku.get_quadrant_from_cell(i, column):
+                        candidates.append(i)
+        return candidates
+
+    # Find row positions for a given column that are possible solutions for the given value
+    def find_value_candidates_in_quadrant(self, quadrant_pos, value):
+        sudoku = self._sudoku
+        candidates = []
+        row, column = quadrant_pos
+        if value in sudoku.get_quadrant_as_list(row, column):
+            return candidates
+
+        i_start = row * 3
+        j_start = column * 3
+        rows = []
+        columns = []
+        for i in range(i_start, i_start + 3):
+            rows.append(sudoku.get_row(i))
+
+        for j in range(j_start, j_start + 3):
+            columns.append(sudoku.get_column(j))
+
+        for i in range(3):
+            for j in range(3):
+                real_i, real_j = i_start + i, j_start + j
+
+                if sudoku.get_cell(real_i, real_j) == 0 and \
+                   value not in rows[i] and \
+                   value not in columns[j]:
+                       candidates.append((i_start + i, j_start + j))
+        return candidates
+
 class CellSolutionNotFound(Exception):
     def __init__(self, message):
 
